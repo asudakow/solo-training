@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Solo Training System</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#07091a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Solo Training">
+<link rel="apple-touch-icon" href="https://i.ibb.co/0ywCVD9d/f8068834-5e59-4d9e-b419-0aca5f978191.png">
+<link rel="icon" type="image/png" href="https://i.ibb.co/0ywCVD9d/f8068834-5e59-4d9e-b419-0aca5f978191.png">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Noto+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{--accent:#3a86ff;--accent2:#1a56cc;--accent-glow:rgba(58,134,255,0.35);--accent-dim:rgba(58,134,255,0.12);--bg:#07091a;--bg2:#0d1226;--card:#0f1630;--card2:#131d40;--border:rgba(58,134,255,0.25);--text:#d8e8ff;--text2:#7a99cc;--danger:#ff4466;--gold:#ffd700;}
+.theme-green{--accent:#00e676;--accent2:#00b050;--accent-glow:rgba(0,230,118,0.35);--accent-dim:rgba(0,230,118,0.1);--border:rgba(0,230,118,0.25);}
+.theme-red{--accent:#ff3355;--accent2:#cc1133;--accent-glow:rgba(255,51,85,0.35);--accent-dim:rgba(255,51,85,0.1);--border:rgba(255,51,85,0.25);}
+.theme-purple{--accent:#bf5fff;--accent2:#8b2fcc;--accent-glow:rgba(191,95,255,0.35);--accent-dim:rgba(191,95,255,0.1);--border:rgba(191,95,255,0.25);}
+.theme-yellow{--accent:#ffe033;--accent2:#cc9900;--accent-glow:rgba(255,224,51,0.35);--accent-dim:rgba(255,224,51,0.1);--border:rgba(255,224,51,0.25);}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;background-image:radial-gradient(ellipse 80% 40% at 50% 0%,rgba(58,134,255,0.08) 0%,transparent 70%),repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(58,134,255,0.02) 40px,rgba(58,134,255,0.02) 41px),repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(58,134,255,0.02) 40px,rgba(58,134,255,0.02) 41px);}
+header{background:linear-gradient(180deg,#090e22 0%,rgba(9,14,34,0.95) 100%);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);}
+.header-inner{max-width:960px;margin:auto;padding:12px 20px;display:flex;align-items:center;gap:16px;}
+.header-title{font-family:'Orbitron',sans-serif;font-size:1.1rem;font-weight:900;color:var(--accent);text-shadow:0 0 16px var(--accent-glow);letter-spacing:2px;white-space:nowrap;}
+.header-level{font-family:'Rajdhani',sans-serif;font-size:0.85rem;color:var(--text2);white-space:nowrap;}
+.header-rank{font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:700;color:var(--gold);text-shadow:0 0 10px rgba(255,215,0,0.5);margin-left:auto;white-space:nowrap;}
+.header-rank.national{color:#ff88ff;text-shadow:0 0 14px rgba(255,100,255,0.7),0 0 28px rgba(255,100,255,0.4);animation:nationalPulse 2s infinite;}
+@keyframes nationalPulse{0%,100%{text-shadow:0 0 14px rgba(255,100,255,0.7);}50%{text-shadow:0 0 28px rgba(255,100,255,1),0 0 50px rgba(255,100,255,0.5);}}
+.xp-section{flex:1;min-width:120px;}
+.xp-label{display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text2);margin-bottom:4px;font-family:'Rajdhani',sans-serif;}
+.xp-bar-wrap{background:rgba(255,255,255,0.06);border-radius:20px;height:8px;overflow:hidden;position:relative;}
+.xp-bar{background:linear-gradient(90deg,var(--accent2),var(--accent));height:100%;border-radius:20px;transition:width 0.5s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 0 10px var(--accent-glow);max-width:100%;}
+.theme-bar{background:var(--bg2);border-bottom:1px solid rgba(255,255,255,0.05);padding:6px 20px;display:flex;justify-content:center;gap:8px;align-items:center;}
+.theme-bar span{font-size:0.7rem;color:var(--text2);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-right:4px;}
+.theme-dot{width:18px;height:18px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform 0.2s,border-color 0.2s;}
+.theme-dot:hover{transform:scale(1.3);}
+.theme-dot.active{border-color:white;transform:scale(1.2);}
+.td-blue{background:#3a86ff;}.td-green{background:#00e676;}.td-red{background:#ff3355;}.td-purple{background:#bf5fff;}.td-yellow{background:#ffe033;}
+.nav-tabs{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;justify-content:center;overflow-x:auto;scrollbar-width:none;}
+.nav-tabs::-webkit-scrollbar{display:none;}
+.tab-btn{background:none;border:none;color:var(--text2);padding:11px 15px;font-family:'Rajdhani',sans-serif;font-size:0.82rem;font-weight:600;letter-spacing:1px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:color 0.2s,border-color 0.2s;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);text-shadow:0 0 10px var(--accent-glow);}
+.container{max-width:960px;margin:auto;padding:20px 16px;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0.6;}
+.card-title{font-family:'Rajdhani',sans-serif;font-size:0.75rem;font-weight:700;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.card-title::before{content:'';display:inline-block;width:3px;height:14px;background:var(--accent);border-radius:2px;box-shadow:0 0 6px var(--accent-glow);}
+.system-notify{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-10px);background:linear-gradient(135deg,#050a1a,#0a1535);border:1px solid var(--accent);border-radius:10px;padding:12px 24px;font-family:'Orbitron',sans-serif;font-size:0.8rem;color:var(--accent);text-shadow:0 0 10px var(--accent-glow);box-shadow:0 0 30px var(--accent-glow);z-index:9999;opacity:0;transition:opacity 0.3s,transform 0.3s;letter-spacing:2px;white-space:nowrap;pointer-events:none;}
+.system-notify.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* PENALTY MODAL */
+.penalty-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:10000;display:none;align-items:center;justify-content:center;}
+.penalty-overlay.show{display:flex;}
+.penalty-box{background:linear-gradient(135deg,#0a0415,#150520);border:2px solid #ff4466;border-radius:16px;padding:28px 24px;max-width:380px;width:92%;text-align:center;box-shadow:0 0 60px rgba(255,68,102,0.4);animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes popIn{from{transform:scale(0.65);opacity:0;}to{transform:scale(1);opacity:1;}}
+.penalty-title{font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:900;color:#ff4466;text-shadow:0 0 20px rgba(255,68,102,0.6);letter-spacing:3px;margin-bottom:6px;}
+.penalty-subtitle{font-family:'Rajdhani',sans-serif;font-size:0.78rem;color:#ff8888;letter-spacing:1px;margin-bottom:16px;}
+.penalty-task-box{background:rgba(255,68,102,0.1);border:1px solid rgba(255,68,102,0.3);border-radius:10px;padding:14px;margin-bottom:20px;}
+.penalty-task-name{font-family:'Orbitron',sans-serif;font-size:1.1rem;font-weight:700;color:#ff4466;margin-bottom:6px;}
+.penalty-task-desc{font-family:'Rajdhani',sans-serif;font-size:0.88rem;color:var(--text2);line-height:1.5;}
+.penalty-accept-btn{background:linear-gradient(135deg,#cc1133,#ff4466);border:none;border-radius:10px;color:white;padding:12px 28px;font-family:'Orbitron',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:2px;cursor:pointer;box-shadow:0 0 20px rgba(255,68,102,0.4);transition:transform 0.15s;}
+.penalty-accept-btn:hover{transform:scale(1.05);}
+
+/* EVENT MODAL */
+.event-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:10001;display:none;align-items:center;justify-content:center;}
+.event-overlay.show{display:flex;}
+.event-box{background:linear-gradient(135deg,#05101f,#0a1830);border:2px solid var(--gold);border-radius:16px;padding:30px 26px;max-width:420px;width:92%;text-align:center;box-shadow:0 0 70px rgba(255,215,0,0.25);animation:popIn 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+.event-icon{font-size:3.2rem;margin-bottom:10px;display:block;animation:pulse 1.8s infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
+.event-title{font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:900;color:var(--gold);text-shadow:0 0 20px rgba(255,215,0,0.5);letter-spacing:2px;margin-bottom:6px;}
+.event-level-lbl{font-family:'Rajdhani',sans-serif;font-size:0.75rem;color:var(--text2);letter-spacing:2px;margin-bottom:14px;}
+.event-desc{font-family:'Rajdhani',sans-serif;font-size:0.95rem;color:var(--text);line-height:1.7;margin-bottom:22px;white-space:pre-line;}
+.event-close-btn{background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;border-radius:10px;color:white;padding:11px 28px;font-family:'Orbitron',sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:2px;cursor:pointer;transition:transform 0.15s;}
+.event-close-btn:hover{transform:scale(1.05);}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+@media(max-width:600px){.stats-grid{grid-template-columns:repeat(3,1fr);}}
+.stat-card{background:var(--accent-dim);border:1px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;}
+.stat-label{font-family:'Rajdhani',sans-serif;font-size:0.65rem;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.stat-value{font-family:'Orbitron',sans-serif;font-size:1.3rem;font-weight:700;color:var(--accent);text-shadow:0 0 8px var(--accent-glow);}
+
+/* QUESTS */
+.quest-group-label{font-family:'Rajdhani',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:2px;color:var(--text2);text-transform:uppercase;padding:8px 0 4px;border-top:1px solid var(--border);margin-top:10px;}
+.quest-group-label:first-child{border-top:none;margin-top:0;padding-top:0;}
+.quest-item{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;transition:opacity 0.3s,border-color 0.3s;}
+.quest-item.done{opacity:0.32;border-color:rgba(255,255,255,0.05);}
+.quest-item.failed{border-color:rgba(255,68,102,0.3);background:rgba(255,68,102,0.05);}
+.quest-text{font-family:'Rajdhani',sans-serif;font-size:0.95rem;font-weight:600;}
+.quest-item.done .quest-text{text-decoration:line-through;color:var(--text2);}
+.quest-item.failed .quest-text{color:#ff9999;}
+.quest-xp{font-size:0.7rem;color:var(--accent);font-family:'Rajdhani',sans-serif;margin-left:8px;flex-shrink:0;}
+.quest-btns{display:flex;gap:5px;flex-shrink:0;margin-left:8px;}
+.streak-badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-family:'Rajdhani',sans-serif;font-size:0.85rem;color:var(--gold);margin-top:10px;}
+
+/* BUTTONS */
+.btn{background:var(--accent-dim);border:1px solid var(--accent);border-radius:8px;color:var(--accent);padding:8px 16px;font-family:'Rajdhani',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:1px;cursor:pointer;transition:background 0.2s,box-shadow 0.2s,transform 0.15s;}
+.btn:hover{background:rgba(58,134,255,0.2);box-shadow:0 0 12px var(--accent-glow);}
+.btn:active{transform:scale(0.96);}
+.btn-primary{background:var(--accent);color:#050a18;}
+.btn-primary:hover{background:var(--accent2);box-shadow:0 0 18px var(--accent-glow);}
+.btn-sm{padding:5px 10px;font-size:0.78rem;}
+.btn-danger{border-color:var(--danger);color:var(--danger);}
+.btn-danger:hover{background:rgba(255,68,102,0.15);box-shadow:0 0 12px rgba(255,68,102,0.3);}
+.check-btn{width:28px;height:28px;border-radius:50%;border:2px solid var(--accent);background:transparent;color:var(--accent);font-size:0.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s,transform 0.15s;flex-shrink:0;}
+.check-btn:hover{background:var(--accent-dim);transform:scale(1.1);}
+.check-btn.checked{background:var(--accent);color:#050a18;}
+.fail-btn{width:28px;height:28px;border-radius:50%;border:2px solid var(--danger);background:transparent;color:var(--danger);font-size:1.1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s,transform 0.15s;flex-shrink:0;line-height:1;}
+.fail-btn:hover{background:rgba(255,68,102,0.15);transform:scale(1.1);}
+
+/* RAID */
+.raid-select{background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:9px 14px;font-family:'Rajdhani',sans-serif;font-size:0.9rem;width:100%;margin-bottom:12px;outline:none;}
+.exercise-list{margin-top:12px;}
+.exercise-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--card2);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;transition:border-color 0.2s;}
+.exercise-item.ex-done{border-color:rgba(0,230,118,0.3);opacity:0.6;}
+.exercise-item.ex-done .exercise-name{text-decoration:line-through;color:var(--text2);}
+.exercise-name{font-family:'Rajdhani',sans-serif;font-size:0.9rem;font-weight:600;flex:1;}
+.training-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
+
+/* READING */
+.book-display{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;}
+.book-name{font-family:'Rajdhani',sans-serif;font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:8px;}
+.book-pages-info{font-size:0.8rem;color:var(--text2);margin-bottom:10px;}
+.book-progress-wrap{background:rgba(255,255,255,0.06);border-radius:20px;height:8px;overflow:hidden;margin-bottom:6px;}
+.book-progress-bar{background:linear-gradient(90deg,var(--accent2),var(--accent));height:100%;border-radius:20px;transition:width 0.5s;box-shadow:0 0 8px var(--accent-glow);}
+.book-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.week-goal-badge{font-size:0.72rem;color:var(--accent);font-family:'Rajdhani',sans-serif;background:var(--accent-dim);border:1px solid var(--border);border-radius:6px;padding:3px 8px;display:inline-block;}
+
+/* PROFILE */
+.profile-hero{display:flex;align-items:center;gap:18px;margin-bottom:18px;}
+.avatar-wrap{position:relative;flex-shrink:0;}
+.avatar{width:80px;height:80px;border-radius:50%;background:var(--accent-dim);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:1.5rem;font-weight:900;color:var(--accent);text-shadow:0 0 12px var(--accent-glow);box-shadow:0 0 20px var(--accent-glow);overflow:hidden;}
+.avatar img{width:100%;height:100%;object-fit:cover;}
+.avatar-upload-btn{position:absolute;bottom:0;right:0;width:24px;height:24px;background:var(--accent);border:none;border-radius:50%;color:#050a18;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;}
+.player-rank-badge{display:inline-block;background:var(--accent-dim);border:1px solid var(--border);border-radius:20px;padding:2px 12px;font-family:'Orbitron',sans-serif;font-size:0.75rem;color:var(--gold);}
+.bio-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;}
+@media(max-width:480px){.bio-grid{grid-template-columns:1fr 1fr;}}
+.bio-item{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;}
+.bio-label{font-size:0.65rem;color:var(--text2);font-family:'Rajdhani',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;}
+.bio-val{font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:700;color:var(--accent);}
+.history-entry{background:var(--card2);border-left:2px solid var(--accent);border-radius:0 6px 6px 0;padding:8px 12px;margin-bottom:6px;font-size:0.8rem;font-family:'Rajdhani',sans-serif;color:var(--text2);display:flex;justify-content:space-between;gap:8px;}
+.history-entry span:first-child{color:var(--text);font-weight:600;}
+
+/* PENALTY STATUS */
+.penalty-status-card{background:rgba(255,68,102,0.07);border:1px solid rgba(255,68,102,0.3);border-radius:10px;padding:14px;}
+.penalty-status-title{font-family:'Rajdhani',sans-serif;font-size:0.75rem;font-weight:700;letter-spacing:2px;color:#ff4466;text-transform:uppercase;margin-bottom:8px;}
+.penalty-status-task{font-family:'Orbitron',sans-serif;font-size:0.9rem;color:#ff8888;margin-bottom:6px;}
+
+/* NUTRITION */
+.nutrition-result{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+.nut-item{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;}
+.nut-label{font-size:0.65rem;color:var(--text2);font-family:'Rajdhani',sans-serif;letter-spacing:1px;text-transform:uppercase;}
+.nut-value{font-family:'Orbitron',sans-serif;font-size:1.1rem;font-weight:700;color:var(--accent);margin-top:3px;}
+.meal-row{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-family:'Rajdhani',sans-serif;font-size:0.88rem;align-items:center;}
+.meal-time{color:var(--accent);font-weight:700;width:80px;flex-shrink:0;font-size:0.78rem;letter-spacing:1px;}
+.supplement-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+.supp-item{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-family:'Rajdhani',sans-serif;font-size:0.82rem;}
+.supp-name{color:var(--accent);font-weight:700;}
+.supp-dose{color:var(--text2);font-size:0.75rem;}
+.inp{background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:9px 14px;font-family:'Rajdhani',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s;}
+.inp:focus{border-color:var(--accent);}
+.log-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px;}
+.chart-wrap{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:12px;}
+canvas{border-radius:6px;}
+.sep{height:1px;background:var(--border);margin:14px 0;}
+
+/* INFO */
+.rank-table{width:100%;border-collapse:collapse;font-family:'Rajdhani',sans-serif;font-size:0.88rem;margin-top:8px;}
+.rank-table th{background:var(--accent-dim);color:var(--accent);padding:8px 12px;text-align:left;font-size:0.72rem;letter-spacing:1px;text-transform:uppercase;}
+.rank-table td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text2);}
+.rank-table td:first-child{color:var(--gold);font-family:'Orbitron',sans-serif;font-weight:700;}
+.info-block{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;}
+.info-block-title{font-family:'Rajdhani',sans-serif;font-size:0.78rem;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.info-block p{font-family:'Rajdhani',sans-serif;font-size:0.88rem;color:var(--text2);line-height:1.6;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--accent2);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<div class="system-notify" id="sysNotify"></div>
+
+<!-- PENALTY MODAL -->
+<div class="penalty-overlay" id="penaltyOverlay">
+  <div class="penalty-box">
+    <div class="penalty-title">⚠ ШТРАФНОЕ ЗАДАНИЕ</div>
+    <div class="penalty-subtitle">СИСТЕМА ОБНАРУЖИЛА НАРУШЕНИЕ ПРОТОКОЛА</div>
+    <div class="penalty-task-box">
+      <div class="penalty-task-name" id="penaltyTaskName">—</div>
+      <div class="penalty-task-desc" id="penaltyTaskDesc">—</div>
+    </div>
+    <button class="penalty-accept-btn" onclick="acceptPenalty()">ПРИНЯТЬ ЗАДАНИЕ</button>
+  </div>
+</div>
+
+<!-- EVENT MODAL -->
+<div class="event-overlay" id="eventOverlay">
+  <div class="event-box">
+    <span class="event-icon" id="eventIcon">🏆</span>
+    <div class="event-title" id="eventTitle">СОБЫТИЕ</div>
+    <div class="event-level-lbl" id="eventLevelLbl">УРОВЕНЬ 10</div>
+    <div class="event-desc" id="eventDesc">—</div>
+    <button class="event-close-btn" onclick="closeEvent()">ПРИНЯТЬ</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div>
+      <div class="header-title">⚔ SOLO TRAINING</div>
+      <div class="header-level">Уровень <span id="hLevel">1</span></div>
+    </div>
+    <div class="xp-section">
+      <div class="xp-label"><span>ОПЫТ</span><span><span id="hXP">0</span>/100</span></div>
+      <div class="xp-bar-wrap"><div class="xp-bar" id="hXPBar"></div></div>
+    </div>
+    <div class="header-rank">РАНГ<br><span id="hRank">E</span></div>
+  </div>
+</header>
+
+<div class="theme-bar">
+  <span>ТЕМА:</span>
+  <div class="theme-dot td-blue" data-theme="" onclick="setTheme(this)"></div>
+  <div class="theme-dot td-green" data-theme="theme-green" onclick="setTheme(this)"></div>
+  <div class="theme-dot td-red" data-theme="theme-red" onclick="setTheme(this)"></div>
+  <div class="theme-dot td-purple" data-theme="theme-purple" onclick="setTheme(this)"></div>
+  <div class="theme-dot td-yellow" data-theme="theme-yellow" onclick="setTheme(this)"></div>
+</div>
+
+<nav class="nav-tabs">
+  <button class="tab-btn active" onclick="switchTab('quests',this)">Задания</button>
+  <button class="tab-btn" onclick="switchTab('training',this)">Тренировки</button>
+  <button class="tab-btn" onclick="switchTab('reading',this)">Чтение</button>
+  <button class="tab-btn" onclick="switchTab('nutrition',this)">Питание</button>
+  <button class="tab-btn" onclick="switchTab('profile',this)">Профиль</button>
+  <button class="tab-btn" onclick="switchTab('analytics',this)">Аналитика</button>
+  <button class="tab-btn" onclick="switchTab('info',this)">Справка</button>
+</nav>
+
+<div class="container">
+
+<!-- ЗАДАНИЯ -->
+<div class="tab-content active" id="tab-quests">
+  <div class="card">
+    <div class="card-title">Ежедневные задания</div>
+    <div id="questList"></div>
+    <div class="sep"></div>
+    <div class="streak-badge">🔥 Серия: <span id="streakVal">0</span> дней</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Статистика</div>
+    <div id="questStats" style="font-family:'Rajdhani',sans-serif;font-size:0.9rem;color:var(--text2);"></div>
+  </div>
+</div>
+
+<!-- ТРЕНИРОВКИ -->
+<div class="tab-content" id="tab-training">
+  <div class="card">
+    <div class="card-title">Начать рейд</div>
+    <select class="raid-select" id="trainingType">
+      <option value="chest">⚔ Рейд 1 — Грудь + Плечи</option>
+      <option value="back">⚔ Рейд 2 — Спина</option>
+      <option value="legs">⚔ Рейд 3 — Ноги</option>
+      <option value="full">⚔ Рейд 4 — Фулл Боди</option>
+    </select>
+    <div class="training-actions">
+      <button class="btn btn-primary" onclick="startTraining()">▶ Начать рейд</button>
+      <button class="btn btn-danger" onclick="endTraining()">✓ Завершить рейд</button>
+    </div>
+    <div id="trainingBox" class="exercise-list"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">История рейдов</div>
+    <div id="raidHistory" style="font-family:'Rajdhani',sans-serif;font-size:0.85rem;"></div>
+  </div>
+</div>
+
+<!-- ЧТЕНИЕ -->
+<div class="tab-content" id="tab-reading">
+  <div class="card">
+    <div class="card-title">Текущая книга</div>
+    <div class="book-display" id="bookDisplay"></div>
+    <div class="book-actions">
+      <button class="btn btn-primary" onclick="readPages()">📖 +<span id="pagesPerSession">20</span> стр.</button>
+      <button class="btn" onclick="finishBook()">✔ Книга дочитана</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Прочитанные книги</div>
+    <div id="readBooks" style="font-family:'Rajdhani',sans-serif;font-size:0.88rem;"></div>
+  </div>
+</div>
+
+<!-- ПИТАНИЕ -->
+<div class="tab-content" id="tab-nutrition">
+  <div class="card">
+    <div class="card-title">Расчёт КБЖУ</div>
+    <div class="log-row">
+      <input class="inp" id="weightInput" placeholder="Вес (кг)" style="width:120px">
+      <button class="btn btn-primary" onclick="calcNutrition()">Рассчитать</button>
+    </div>
+    <div id="nutritionResult"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Пример дня</div>
+    <div>
+      <div class="meal-row"><div class="meal-time">ЗАВТРАК</div><div>Овсянка • Банан • Протеин</div></div>
+      <div class="meal-row"><div class="meal-time">ОБЕД</div><div>Рис • Куриное филе • Овощи</div></div>
+      <div class="meal-row"><div class="meal-time">ПЕРЕКУС</div><div>Яблоко • Зефир (1–2 шт)</div></div>
+      <div class="meal-row"><div class="meal-time">УЖИН</div><div>Минтай • Гречка • Овощи</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Добавки</div>
+    <div class="supplement-grid">
+      <div class="supp-item"><div class="supp-name">Протеин</div><div class="supp-dose">1–2 порции / день</div></div>
+      <div class="supp-item"><div class="supp-name">Креатин</div><div class="supp-dose">5 г / день</div></div>
+      <div class="supp-item"><div class="supp-name">Цитруллин</div><div class="supp-dose">6–8 г перед тр.</div></div>
+      <div class="supp-item"><div class="supp-name">Бета-аланин</div><div class="supp-dose">3–4 г / день</div></div>
+      <div class="supp-item"><div class="supp-name">Изотоник</div><div class="supp-dose">Во время тр.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ПРОФИЛЬ -->
+<div class="tab-content" id="tab-profile">
+  <div class="card">
+    <div class="profile-hero">
+      <div class="avatar-wrap">
+        <div class="avatar" id="avatarDisplay"><span id="avatarLetter">S</span></div>
+        <button class="avatar-upload-btn" onclick="document.getElementById('avatarInput').click()" title="Загрузить фото">✎</button>
+        <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="uploadAvatar(event)">
+      </div>
+      <div class="profile-info" style="flex:1">
+        <div id="nameDisplay" onclick="startEditName()" title="Нажми чтобы изменить" style="font-family:'Orbitron',sans-serif;font-size:0.95rem;font-weight:700;color:var(--text);margin-bottom:6px;cursor:pointer;display:none;border-bottom:1px dashed var(--border);padding-bottom:3px;"></div>
+        <input class="inp" id="nameInput" placeholder="Введи имя охотника..." style="font-family:'Orbitron',sans-serif;font-size:0.85rem;padding:6px 10px;width:100%;max-width:220px;margin-bottom:6px;" onblur="commitName()" onkeydown="if(event.key==='Enter')commitName()">
+        <div><span class="player-rank-badge">РАНГ <span id="profileRank">E</span></span></div>
+        <div style="margin-top:6px;font-family:'Rajdhani',sans-serif;font-size:0.8rem;color:var(--text2);">Цель: Рекомпозиция тела</div>
+      </div>
+    </div>
+    <div class="bio-grid">
+      <div class="bio-item"><div class="bio-label">Рост</div><div class="bio-val">180 см</div></div>
+      <div class="bio-item"><div class="bio-label">Вес</div><div class="bio-val"><span id="bioWeight">—</span></div></div>
+      <div class="bio-item"><div class="bio-label">Уровень</div><div class="bio-val"><span id="bioLevel">1</span></div></div>
+      <div class="bio-item"><div class="bio-label">Серия</div><div class="bio-val"><span id="bioStreak">0</span>🔥</div></div>
+      <div class="bio-item"><div class="bio-label">Тренировок</div><div class="bio-val"><span id="bioTrainings">0</span></div></div>
+      <div class="bio-item"><div class="bio-label">Книг</div><div class="bio-val"><span id="bioBooks">0</span></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Характеристики</div>
+    <div class="stats-grid" id="statsGrid"></div>
+  </div>
+  <div class="card" id="penaltyStatusCard" style="display:none">
+    <div class="card-title">Активный штраф</div>
+    <div class="penalty-status-card">
+      <div class="penalty-status-title">⚠ Штрафное задание активно</div>
+      <div class="penalty-status-task" id="penaltyStatusTask">—</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:0.82rem;color:var(--text2);margin-bottom:12px;" id="penaltyStatusDesc">—</div>
+      <button class="btn btn-danger" onclick="verifyPenalty()">✓ Проверка штрафного задания</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Тест системы</div>
+    <div style="font-family:'Rajdhani',sans-serif;font-size:0.82rem;color:var(--text2);margin-bottom:10px;">Запустить тестовое штрафное задание вручную — для проверки работы системы.</div>
+    <button class="btn btn-danger" onclick="testPenalty()">⚡ Тестовый штраф</button>
+  </div>
+  <div class="card">
+    <div class="card-title">История прогресса</div>
+    <div id="profileHistory"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Опасная зона</div>
+    <div style="font-family:'Rajdhani',sans-serif;font-size:0.85rem;color:var(--text2);margin-bottom:10px;">Полный сброс удалит весь прогресс. Действие необратимо.</div>
+    <button class="btn btn-danger" onclick="resetAllData()">⚠ Сбросить все данные</button>
+  </div>
+</div>
+
+<!-- АНАЛИТИКА -->
+<div class="tab-content" id="tab-analytics">
+  <div class="card">
+    <div class="card-title">Запись прогресса</div>
+    <div class="log-row">
+      <input class="inp" id="weightLog" placeholder="Вес (кг)" style="width:120px">
+      <input class="inp" id="pullLog" placeholder="Подтягивания" style="width:150px">
+      <button class="btn btn-primary" onclick="logProgress()">Сохранить</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Динамика веса</div>
+    <div class="chart-wrap"><canvas id="weightChart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Динамика подтягиваний</div>
+    <div class="chart-wrap"><canvas id="strengthChart"></canvas></div>
+  </div>
+</div>
+
+<!-- СПРАВКА -->
+<div class="tab-content" id="tab-info">
+  <div class="card">
+    <div class="card-title">О системе</div>
+    <div class="info-block">
+      <div class="info-block-title">Solo Training System</div>
+      <p>Геймифицированная система саморазвития, вдохновлённая манхвой «Поднятие уровня в одиночку». Выполняй ежедневные задания, проходи рейды, читай книги — прокачивай себя как персонажа в игре.</p>
+    </div>
+    <div class="info-block">
+      <div class="info-block-title">Опыт и уровни</div>
+      <p>Каждое действие приносит опыт (XP). 100 XP = новый уровень. При повышении уровня растут все характеристики. На уровнях 10, 20, 50 и 100 тебя ждут особые события-сюрпризы.</p>
+    </div>
+    <div class="info-block">
+      <div class="info-block-title">Штрафные задания</div>
+      <p>Нажал «−» на физическом задании — получаешь штраф: удвоенная нагрузка и −10 XP. Задание отображается в Профиле. После выполнения нажми «Проверка» — получишь +20 XP. За невыполненные задания по гигиене снимается −5 XP.</p>
+    </div>
+    <div class="info-block">
+      <div class="info-block-title">Ежедневный сброс</div>
+      <p>Задания сбрасываются при первом открытии приложения после полуночи. Серия считает дни, когда все задания выполнены подряд. Один пропущенный день — серия обнуляется.</p>
+    </div>
+    <div class="info-block">
+      <div class="info-block-title">Чтение</div>
+      <p>Каждые 7 дней серии (streak) объём чтения за сессию растёт на +5 страниц. Базовый объём — 20 страниц. За дочитанную книгу — бонус +40 XP.</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Система рангов</div>
+    <table class="rank-table">
+      <tr><th>Ранг</th><th>Уровень</th><th>Описание</th></tr>
+      <tr><td>E</td><td>1–14</td><td>Новобранец. Формируешь привычки. Главное — не останавливаться.</td></tr>
+      <tr><td>D</td><td>15–24</td><td>Боец. Рутина заложена. Тело начинает меняться.</td></tr>
+      <tr><td>C</td><td>25–34</td><td>Охотник. Стабильный прогресс, дисциплина на месте.</td></tr>
+      <tr><td>B</td><td>35–49</td><td>Элита. Физическая форма заметно выше среднего.</td></tr>
+      <tr><td>A</td><td>50–64</td><td>Мастер. Рекомпозиция завершена. Ты изменился.</td></tr>
+      <tr><td>S</td><td>65–99</td><td>Легенда. Solo Hunter. Ты на вершине системы.</td></tr>
+      <tr><td style="color:#ff88ff;text-shadow:0 0 10px rgba(255,100,255,0.6);">NATIONAL</td><td>100+</td><td>Национальный охотник. Ты вышел за пределы системы.</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Источники XP</div>
+    <table class="rank-table">
+      <tr><th>Действие</th><th>XP</th></tr>
+      <tr><td>Отжимания / Приседания / Пресс</td><td>+12</td></tr>
+      <tr><td>Планка</td><td>+10</td></tr>
+      <tr><td>8000 шагов</td><td>+15</td></tr>
+      <tr><td>Вода 2.5 л</td><td>+9</td></tr>
+      <tr><td>Задание гигиены (каждое)</td><td>+5</td></tr>
+      <tr><td>Рейд — полное выполнение</td><td>+35</td></tr>
+      <tr><td>Рейд — частичное</td><td>пропорционально</td></tr>
+      <tr><td>Чтение (сессия)</td><td>+10</td></tr>
+      <tr><td>Книга дочитана</td><td>+40</td></tr>
+      <tr><td>Штраф выполнен</td><td>+20</td></tr>
+      <tr><td>Штраф начислен</td><td>−10</td></tr>
+      <tr><td>Гигиена не выполнена</td><td>−5</td></tr>
+    </table>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// ====== SOUND ======
+let _ac=null;
+function ac(){if(!_ac){try{_ac=new(window.AudioContext||window.webkitAudioContext)();}catch(e){return null;}}if(_ac.state==="suspended")_ac.resume();return _ac;}
+function tone(f,t,d,v,t0){const c=ac();if(!c)return;t0=(t0||0)+c.currentTime;v=v||0.14;const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type=t||"sine";o.frequency.value=f;g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(v,t0+0.015);g.gain.exponentialRampToValueAtTime(0.0001,t0+d);o.start(t0);o.stop(t0+d+0.05);}
+const SFX={
+  questDone(){tone(600,"sine",0.1,0.16);tone(900,"sine",0.14,0.14,0.11);},
+  allDone(){[440,554,659,880,1100].forEach((f,i)=>tone(f,"sine",0.18,0.15,i*0.1));},
+  levelUp(){[330,415,523,659].forEach((f,i)=>tone(f,"square",0.2,0.09,i*0.09));[523,659,880].forEach((f,i)=>tone(f,"sine",0.3,0.16,0.45+i*0.13));},
+  raidStart(){tone(180,"sawtooth",0.07,0.13);tone(280,"sawtooth",0.1,0.13,0.1);tone(380,"square",0.12,0.14,0.22);},
+  raidEnd(){[261,329,392].forEach(f=>tone(f,"sine",0.35,0.12));tone(523,"sine",0.45,0.17,0.18);},
+  readPage(){tone(800,"sine",0.08,0.1);tone(1000,"sine",0.12,0.09,0.09);},
+  bookDone(){[523,659,784,1047].forEach((f,i)=>tone(f,"sine",0.28,0.14,i*0.11));},
+  saved(){tone(440,"sine",0.07,0.08);tone(550,"sine",0.09,0.07,0.08);},
+  err(){tone(160,"square",0.18,0.14);},
+  penalty(){tone(100,"sawtooth",0.12,0.18);tone(140,"sawtooth",0.18,0.16,0.13);tone(80,"square",0.28,0.14,0.28);},
+  event(){[523,659,784,1047,1319].forEach((f,i)=>tone(f,"sine",0.4,0.14,i*0.12));}
+};
+
+// ====== DATA ======
+let data=JSON.parse(localStorage.getItem("soloTraining"))||{
+  level:1,xp:0,rank:"E",str:5,end:5,ath:5,fat:5,int:5,
+  streak:0,lastReset:null,quests:[],questsFailed:[],questsCompletedTotal:0,
+  weights:[],pulls:[],book:0,bookPage:0,booksRead:[],
+  trainingsCount:0,raidLog:[],history:[],theme:"",
+  playerName:"",avatarImg:"",penalty:null,seenEvents:[]
+};
+
+// ====== QUEST DEFINITIONS ======
+const QUEST_GROUPS=[
+  {group:"Физические",quests:[
+    {label:"Отжимания — 30",xp:12},{label:"Приседания — 40",xp:12},
+    {label:"Пресс — 30",xp:12},{label:"Планка — 60 сек",xp:10},
+    {label:"8000 шагов",xp:15},{label:"Вода — 2.5 л",xp:9}
+  ]},
+  {group:"Гигиена",quests:[
+    {label:"Чистка зубов (утро + вечер)",xp:5},
+    {label:"Умывание",xp:5},
+    {label:"Нанесение средства на лицо",xp:5}
+  ]}
+];
+const QUESTS_FLAT=[];
+QUEST_GROUPS.forEach(g=>g.quests.forEach(q=>QUESTS_FLAT.push({...q,group:g.group})));
+const TQ=QUESTS_FLAT.length;
+const PHYSICAL_COUNT=6;
+
+if(!Array.isArray(data.quests)||data.quests.length!==TQ)data.quests=Array(TQ).fill(false);
+if(!Array.isArray(data.questsFailed)||data.questsFailed.length!==TQ)data.questsFailed=Array(TQ).fill(false);
+
+// ====== PENALTY POOL ======
+const PENALTIES=[
+  {task:"Отжимания — 60",desc:"Выполни 60 отжиманий суммарно. Можно разбить на подходы."},
+  {task:"Приседания — 80",desc:"Выполни 80 приседаний. Следи за техникой, не торопись."},
+  {task:"Пресс — 60",desc:"Выполни 60 подъёмов корпуса или скручиваний в любом темпе."},
+  {task:"Планка — 3 мин суммарно",desc:"Простой в планке — суммарно 3 минуты. Разбей на несколько подходов."},
+  {task:"Выпады — 40 повторений",desc:"20 на каждую ногу. Следи за равновесием и глубиной."}
+];
+
+// ====== LEVEL EVENTS ======
+const LEVEL_EVENTS={
+  10:{icon:"📓",title:"ДНЕВНИК ОХОТНИКА",desc:`Ты достиг уровня 10. Система открывает новый протокол.\n\nЗаведи физический дневник. Записывай каждую тренировку от руки: дату, упражнения, самочувствие. Бумага фиксирует путь, который нельзя удалить — и делает прогресс осязаемым.`},
+  20:{icon:"🧊",title:"ПРОТОКОЛ ХОЛОДА",desc:`Уровень 20 достигнут. Система регистрирует новый вызов.\n\nНачни принимать контрастный душ каждое утро: 1 минута горячей воды — 30 секунд холодной, 3 цикла. Это тренирует сосуды, укрепляет иммунитет и заряжает энергией на весь день.`},
+  50:{icon:"🧠",title:"РАСШИРЕНИЕ РАЗУМА",desc:`Уровень 50. Ты прошёл половину пути к рангу S.\n\nСистема назначает новый ритуал: 10 минут медитации каждое утро. Сядь, закрой глаза, дыши медленно — 4 секунды вдох, 4 задержка, 4 выдох. Это перезагружает нервную систему и усиливает концентрацию.`},
+  100:{icon:"👁",title:"ПРОБУЖДЕНИЕ",desc:`Уровень 100.\n\nТы — не тот, кто начинал. Тело изменилось. Разум укрепился. Привычки стали частью тебя.\n\nПоследнее задание системы: напиши письмо себе прошлому. Расскажи, кем ты стал. Запечатай конверт. Открой через год.`}
+};
+
+const BOOKS=[
+  {title:"Аристотель — Политика",pages:320},{title:"Платон — Государство",pages:360},
+  {title:"Макиавелли — Государь",pages:160},{title:"Ленин — Государство и революция",pages:160},
+  {title:"Киссинджер — Мировой порядок",pages:432}
+];
+const RAIDS={
+  chest:{name:"Грудь + Плечи",exercises:["Отжимания 4×12","Жим гантелей лёжа 4×10","Разведения гантелей 3×12","Жим гантелей вверх 4×10","Планка 3×1 мин"]},
+  back:{name:"Спина",exercises:["Подтягивания 4×максимум","Тяга штанги к поясу 4×10","Тяга гантели одной рукой 3×10","Обратные отжимания 3×12","Пресс 3×20"]},
+  legs:{name:"Ноги",exercises:["Присед со штангой 4×12","Выпады 3×10","Румынская тяга 4×10","Подъёмы на носки 4×15","Планка 3×1 мин"]},
+  full:{name:"Фулл Боди",exercises:["Подтягивания 4×максимум","Отжимания 4×15","Приседания 4×15","Жим гантелей 3×12","Пресс 3×25"]}
+};
+let activeExercises=[],trainingActive=false;
+
+function save(){localStorage.setItem("soloTraining",JSON.stringify(data));}
+
+function system(msg){
+  const el=document.getElementById("sysNotify");
+  el.textContent=msg;el.classList.add("show");
+  clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("show"),2400);
+}
+
+// ====== XP ======
+function addXP(n){
+  data.xp+=n;
+  if(data.xp>=100){
+    data.xp-=100;data.level++;
+    data.str++;data.end++;data.ath++;data.fat++;
+    updateRank();
+    if(data.level===100){
+      system("👑 РАНГ: NATIONAL");
+      setTimeout(()=>showNationalEvent(),1200);
+    } else {
+      system("⬆ LEVEL UP! Уровень "+data.level);
+    }
+    SFX.levelUp();
+    logHistory("Уровень "+data.level+" достигнут");
+    checkEvent(data.level);
+  }
+  save();updateUI();
+}
+function loseXP(n){data.xp=Math.max(0,data.xp-n);save();updateUI();}
+function updateRank(){
+  const l=data.level;
+  if(l>=100)     data.rank="NATIONAL";
+  else if(l>=65) data.rank="S";
+  else if(l>=50) data.rank="A";
+  else if(l>=35) data.rank="B";
+  else if(l>=25) data.rank="C";
+  else if(l>=15) data.rank="D";
+  else           data.rank="E";
+}
+
+// ====== EVENTS ======
+function checkEvent(lvl){
+  if(LEVEL_EVENTS[lvl]&&!(data.seenEvents||[]).includes(lvl)){
+    setTimeout(()=>showEvent(lvl),1600);
+  }
+}
+function showNationalEvent(){
+  document.getElementById("eventIcon").textContent="👑";
+  document.getElementById("eventTitle").textContent="NATIONAL HUNTER";
+  document.getElementById("eventLevelLbl").textContent="УРОВЕНЬ 100";
+  document.getElementById("eventDesc").textContent="Вы достигли 100 уровня.\n\nТеперь ваш ранг — НАЦИОНАЛЬНЫЙ.\n\nПоздравляем. Вы вышли за пределы системы.";
+  document.getElementById("eventOverlay").classList.add("show");
+  SFX.event();
+  logHistory("Достигнут NATIONAL ранг!");
+}
+function showEvent(lvl){
+  const ev=LEVEL_EVENTS[lvl];if(!ev)return;
+  document.getElementById("eventIcon").textContent=ev.icon;
+  document.getElementById("eventTitle").textContent=ev.title;
+  document.getElementById("eventLevelLbl").textContent="УРОВЕНЬ "+lvl;
+  document.getElementById("eventDesc").textContent=ev.desc;
+  document.getElementById("eventOverlay").classList.add("show");
+  SFX.event();
+}
+function closeEvent(){
+  const lbl=document.getElementById("eventLevelLbl").textContent;
+  const lvl=parseInt(lbl.replace("УРОВЕНЬ ",""));
+  if(!data.seenEvents)data.seenEvents=[];
+  if(!data.seenEvents.includes(lvl))data.seenEvents.push(lvl);
+  document.getElementById("eventOverlay").classList.remove("show");
+  save();
+}
+
+// ====== DAILY RESET ======
+function resetDaily(){
+  const today=new Date().toDateString();
+  if(data.lastReset!==today){
+    if(data.lastReset){
+      const y=new Date();y.setDate(y.getDate()-1);
+      if(data.lastReset!==y.toDateString())data.streak=0;
+    }
+    data.quests=Array(TQ).fill(false);
+    data.questsFailed=Array(TQ).fill(false);
+    data.lastReset=today;save();
+  }
+}
+
+// ====== QUESTS ======
+function renderQuests(){
+  const c=document.getElementById("questList");c.innerHTML="";
+  let idx=0;
+  QUEST_GROUPS.forEach(group=>{
+    const lbl=document.createElement("div");
+    lbl.className="quest-group-label";
+    lbl.textContent="— "+group.group+" —";
+    c.appendChild(lbl);
+    group.quests.forEach(q=>{
+      const i=idx++;
+      const done=data.quests[i],failed=data.questsFailed[i];
+      const div=document.createElement("div");
+      div.className="quest-item"+(done?" done":"")+(failed&&!done?" failed":"");
+
+      const left=document.createElement("div");
+      left.style.cssText="display:flex;align-items:center;gap:6px;flex:1;min-width:0;overflow:hidden;";
+      const txt=document.createElement("span");txt.className="quest-text";txt.textContent=q.label;
+      const xpb=document.createElement("span");xpb.className="quest-xp";
+      xpb.textContent=failed&&!done?"−XP":"+"+q.xp+" XP";
+      if(failed&&!done)xpb.style.color="var(--danger)";
+      left.appendChild(txt);left.appendChild(xpb);
+
+      const btns=document.createElement("div");btns.className="quest-btns";
+      if(!done&&!failed){
+        const ok=document.createElement("button");ok.className="check-btn";ok.innerHTML="✓";ok.onclick=()=>completeQuest(i);
+        const no=document.createElement("button");no.className="fail-btn";no.innerHTML="✕";no.title="Не выполнено";no.onclick=()=>failQuest(i);
+        btns.appendChild(ok);btns.appendChild(no);
+      } else {
+        const ic=document.createElement("span");
+        ic.style.cssText="font-size:1rem;padding:0 6px;";
+        ic.textContent=done?"✓":"✗";ic.style.color=done?"var(--accent)":"var(--danger)";
+        btns.appendChild(ic);
+      }
+      div.appendChild(left);div.appendChild(btns);c.appendChild(div);
+    });
+  });
+  const done=data.quests.filter(Boolean).length,failed=data.questsFailed.filter(Boolean).length;
+  document.getElementById("questStats").innerHTML=`Выполнено: <span style="color:var(--accent);font-weight:700">${done}/${TQ}</span> &nbsp;•&nbsp; Провалено: <span style="color:var(--danger)">${failed}</span> &nbsp;•&nbsp; Всего: <span style="color:var(--accent)">${data.questsCompletedTotal}</span>`;
+  document.getElementById("streakVal").textContent=data.streak;
+}
+
+function completeQuest(i){
+  if(data.quests[i]||data.questsFailed[i])return;
+  data.quests[i]=true;data.questsCompletedTotal++;
+  addXP(QUESTS_FLAT[i].xp);
+  system("ЗАДАНИЕ ВЫПОЛНЕНО — +"+QUESTS_FLAT[i].xp+" XP");SFX.questDone();
+  if(data.quests.every(q=>q)){
+    setTimeout(()=>{data.streak++;system("🔥 ВСЕ ЗАДАНИЯ ВЫПОЛНЕНЫ! Серия: "+data.streak);SFX.allDone();logHistory("Полный день — серия "+data.streak);save();updateUI();},2600);
+  }
+  save();updateUI();
+}
+
+function failQuest(i){
+  if(data.quests[i]||data.questsFailed[i])return;
+  data.questsFailed[i]=true;
+
+  if(i<PHYSICAL_COUNT){
+    loseXP(5);
+    system("✕ Задание отмечено как невыполненное. −5 XP");
+    SFX.err();
+  } else {
+    loseXP(3);
+    system("✕ Гигиена пропущена. −3 XP");
+    SFX.err();
+  }
+
+  // Check if ALL quests have been acted on (done or failed) — trigger penalty
+  const allActed = data.quests.every((q,idx)=>q||data.questsFailed[idx]);
+  const anyFailed = data.questsFailed.some(Boolean);
+  if(allActed && anyFailed && !data.penalty){
+    const pt=PENALTIES[Math.floor(Math.random()*PENALTIES.length)];
+    data.penalty={task:pt.task,desc:pt.desc,date:new Date().toLocaleDateString("ru")};
+    loseXP(10);
+    setTimeout(()=>{
+      document.getElementById("penaltyTaskName").textContent=pt.task;
+      document.getElementById("penaltyTaskDesc").textContent=pt.desc;
+      document.getElementById("penaltyOverlay").classList.add("show");
+      SFX.penalty();
+    },800);
+  }
+
+  save();updateUI();
+}
+
+function acceptPenalty(){
+  document.getElementById("penaltyOverlay").classList.remove("show");
+  system("⚠ ШТРАФ ПРИНЯТ. Выполни и отметь в Профиле.");
+  save();renderPenaltyStatus();
+}
+
+function verifyPenalty(){
+  if(!data.penalty){system("Нет активного штрафа");return;}
+  logHistory("Штраф выполнен: "+data.penalty.task);
+  data.penalty=null;save();
+  addXP(20);system("✔ ШТРАФ ВЫПОЛНЕН! +20 XP");SFX.raidEnd();
+  renderPenaltyStatus();
+}
+
+function testPenalty(){
+  const pt=PENALTIES[Math.floor(Math.random()*PENALTIES.length)];
+  document.getElementById("penaltyTaskName").textContent=pt.task;
+  document.getElementById("penaltyTaskDesc").textContent=pt.desc;
+  document.getElementById("penaltyOverlay").classList.add("show");
+  SFX.penalty();
+}
+
+function renderPenaltyStatus(){
+  const card=document.getElementById("penaltyStatusCard");
+  if(data.penalty){
+    card.style.display="block";
+    document.getElementById("penaltyStatusTask").textContent=data.penalty.task;
+    document.getElementById("penaltyStatusDesc").textContent=data.penalty.desc;
+  } else card.style.display="none";
+}
+
+// ====== NAME toggle ======
+function commitName(){
+  const val=document.getElementById("nameInput").value.trim();
+  if(!val)return; // keep input open if empty
+  data.playerName=val;save();
+  document.getElementById("nameInput").style.display="none";
+  const disp=document.getElementById("nameDisplay");
+  disp.textContent=val;
+  disp.style.display="block";
+}
+function startEditName(){
+  document.getElementById("nameDisplay").style.display="none";
+  const inp=document.getElementById("nameInput");
+  inp.style.display="block";
+  inp.focus();inp.select();
+}
+// legacy compat
+function saveName(){}
+function uploadAvatar(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{data.avatarImg=ev.target.result;save();renderAvatar();};
+  r.readAsDataURL(f);
+}
+function renderAvatar(){
+  const av=document.getElementById("avatarDisplay");
+  av.innerHTML=data.avatarImg?`<img src="${data.avatarImg}" alt="av">`:`<span>${data.rank}</span>`;
+}
+
+// ====== TRAINING ======
+function startTraining(){
+  const type=document.getElementById("trainingType").value,raid=RAIDS[type];
+  const box=document.getElementById("trainingBox");
+  activeExercises=raid.exercises.map(()=>false);trainingActive=true;box.innerHTML="";
+  raid.exercises.forEach((ex,i)=>{
+    const div=document.createElement("div");div.className="exercise-item";
+    const cb=document.createElement("button");cb.className="check-btn";cb.innerHTML="✓";cb.onclick=()=>toggleEx(i,div,cb);
+    const nm=document.createElement("span");nm.className="exercise-name";nm.textContent=ex;
+    div.appendChild(cb);div.appendChild(nm);box.appendChild(div);
+  });
+  system("⚔ РЕЙД НАЧАТ: "+raid.name.toUpperCase());SFX.raidStart();
+}
+function toggleEx(i,div,btn){
+  activeExercises[i]=!activeExercises[i];
+  div.classList.toggle("ex-done",activeExercises[i]);btn.classList.toggle("checked",activeExercises[i]);
+}
+function endTraining(){
+  if(!trainingActive){system("Сначала начните рейд");SFX.err();return;}
+  const done=activeExercises.filter(Boolean).length,total=activeExercises.length;
+  const xp=done>=total?35:Math.round(35*(done/total));
+  data.trainingsCount++;
+  const type=document.getElementById("trainingType").value;
+  data.raidLog.unshift({date:new Date().toLocaleDateString("ru"),name:RAIDS[type].name,done,total});
+  if(data.raidLog.length>10)data.raidLog.pop();
+  logHistory("Рейд: "+RAIDS[type].name+" ("+done+"/"+total+")");
+  addXP(xp);system("✔ РЕЙД ЗАВЕРШЁН — +"+xp+" XP ("+done+"/"+total+")");SFX.raidEnd();
+  trainingActive=false;document.getElementById("trainingBox").innerHTML="";renderRaidHistory();
+}
+function renderRaidHistory(){
+  const c=document.getElementById("raidHistory");
+  c.innerHTML=data.raidLog.length
+    ?data.raidLog.slice(0,5).map(r=>`<div class="history-entry"><span>${r.name}</span><span style="color:var(--text2)">${r.date} · ${r.done}/${r.total}</span></div>`).join("")
+    :"<span style='color:var(--text2)'>Нет записей</span>";
+}
+
+// ====== READING ======
+function getPPS(){return 20+Math.floor(data.streak/7)*5;}
+function renderBook(){
+  const book=BOOKS[data.book%BOOKS.length],pps=getPPS();
+  document.getElementById("pagesPerSession").textContent=pps;
+  const pct=Math.min(100,Math.round((data.bookPage/book.pages)*100));
+  document.getElementById("bookDisplay").innerHTML=`
+    <div class="book-name">${book.title}</div>
+    <div class="book-pages-info">Страница ${data.bookPage} из ${book.pages}</div>
+    <div class="book-progress-wrap"><div class="book-progress-bar" style="width:${pct}%"></div></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+      <div class="week-goal-badge">📖 +${pps} стр./сессия</div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:0.8rem;color:var(--accent)">${pct}%</div>
+    </div>`;
+  document.getElementById("readBooks").innerHTML=data.booksRead.length
+    ?data.booksRead.map(b=>`<div class="history-entry"><span>✔ ${b}</span></div>`).join("")
+    :"<span style='color:var(--text2)'>Ещё нет завершённых книг</span>";
+}
+function readPages(){
+  const pps=getPPS(),book=BOOKS[data.book%BOOKS.length];
+  data.bookPage=Math.min(book.pages,data.bookPage+pps);data.int++;
+  addXP(10);system("📖 ПРОЧИТАНО +"+pps+" СТР.");SFX.readPage();renderBook();save();
+}
+function finishBook(){
+  data.booksRead.push(BOOKS[data.book%BOOKS.length].title);
+  logHistory("Дочитана: "+BOOKS[data.book%BOOKS.length].title);
+  data.book++;data.bookPage=0;data.int+=3;addXP(40);
+  system("📚 КНИГА ЗАВЕРШЕНА! +40 XP");SFX.bookDone();renderBook();save();
+}
+
+// ====== NUTRITION ======
+function calcNutrition(){
+  const w=parseFloat(document.getElementById("weightInput").value);
+  if(!w){system("Введите вес");SFX.err();return;}
+  const cal=Math.round(w*30),p=Math.round(w*2),f=Math.round(w*1),c=Math.round((cal-p*4-f*9)/4);
+  document.getElementById("nutritionResult").innerHTML=`<div class="nutrition-result"><div class="nut-item"><div class="nut-label">Калории</div><div class="nut-value">${cal}</div></div><div class="nut-item"><div class="nut-label">Белок</div><div class="nut-value">${p}г</div></div><div class="nut-item"><div class="nut-label">Жиры</div><div class="nut-value">${f}г</div></div><div class="nut-item"><div class="nut-label">Углеводы</div><div class="nut-value">${c}г</div></div></div>`;
+}
+
+// ====== PROGRESS ======
+function logProgress(){
+  const w=parseFloat(document.getElementById("weightLog").value),p=parseInt(document.getElementById("pullLog").value);
+  if(w){data.weights.push({v:w,d:new Date().toLocaleDateString("ru")});logHistory("Вес: "+w+" кг");}
+  if(p){data.pulls.push({v:p,d:new Date().toLocaleDateString("ru")});logHistory("Подтягивания: "+p);}
+  document.getElementById("weightLog").value="";document.getElementById("pullLog").value="";
+  save();renderCharts();system("ПРОГРЕСС СОХРАНЁН");SFX.saved();
+}
+
+function logHistory(msg){
+  data.history.unshift({msg,date:new Date().toLocaleDateString("ru")});
+  if(data.history.length>30)data.history.pop();
+}
+
+// ====== CHARTS ======
+let wChart,sChart;
+function renderCharts(){
+  if(wChart)wChart.destroy();if(sChart)sChart.destroy();
+  const accent=getComputedStyle(document.body).getPropertyValue("--accent").trim()||"#3a86ff";
+  const opts={plugins:{legend:{labels:{color:"#7a99cc",font:{family:"Rajdhani"}}}},scales:{x:{ticks:{color:"#7a99cc"},grid:{color:"rgba(58,134,255,0.08)"}},y:{ticks:{color:"#7a99cc"},grid:{color:"rgba(58,134,255,0.08)"}}}};
+  wChart=new Chart(document.getElementById("weightChart"),{type:"line",data:{labels:data.weights.map(e=>e.d),datasets:[{label:"Вес (кг)",data:data.weights.map(e=>e.v),borderColor:accent,backgroundColor:accent+"22",pointBackgroundColor:accent,tension:0.3,fill:true}]},options:opts});
+  sChart=new Chart(document.getElementById("strengthChart"),{type:"line",data:{labels:data.pulls.map(e=>e.d),datasets:[{label:"Подтягивания",data:data.pulls.map(e=>e.v),borderColor:accent,backgroundColor:accent+"22",pointBackgroundColor:accent,tension:0.3,fill:true}]},options:opts});
+}
+
+// ====== PROFILE ======
+function renderProfile(){
+  document.getElementById("profileRank").textContent=data.rank;
+  document.getElementById("bioLevel").textContent=data.level;
+  document.getElementById("bioStreak").textContent=data.streak;
+  document.getElementById("bioTrainings").textContent=data.trainingsCount;
+  document.getElementById("bioBooks").textContent=data.booksRead.length;
+  document.getElementById("bioWeight").textContent=data.weights.length?data.weights[data.weights.length-1].v+" кг":"82 кг";
+  if(data.playerName){
+    document.getElementById("nameInput").value=data.playerName;
+    document.getElementById("nameInput").style.display="none";
+    const disp=document.getElementById("nameDisplay");
+    disp.textContent=data.playerName;disp.style.display="block";
+  } else {
+    document.getElementById("nameInput").style.display="block";
+    document.getElementById("nameDisplay").style.display="none";
+  }
+  renderAvatar();
+  document.getElementById("statsGrid").innerHTML=[
+    {label:"Сила",key:"str"},{label:"Выносл.",key:"end"},
+    {label:"Атлетизм",key:"ath"},{label:"Жиросж.",key:"fat"},{label:"Интеллект",key:"int"}
+  ].map(s=>`<div class="stat-card"><div class="stat-label">${s.label}</div><div class="stat-value">${data[s.key]}</div></div>`).join("");
+  const ph=document.getElementById("profileHistory");
+  ph.innerHTML=data.history.length
+    ?data.history.slice(0,15).map(h=>`<div class="history-entry"><span>${h.msg}</span><span style="color:var(--text2);flex-shrink:0">${h.date}</span></div>`).join("")
+    :"<span style='color:var(--text2);font-family:Rajdhani,sans-serif'>История пуста</span>";
+  renderPenaltyStatus();
+}
+
+// ====== THEME ======
+const ALL_T=["theme-green","theme-red","theme-purple","theme-yellow"];
+function setTheme(el){
+  const cls=el.dataset.theme;
+  document.body.classList.remove(...ALL_T);
+  if(cls)document.body.classList.add(cls);
+  data.theme=cls;save();
+  document.querySelectorAll(".theme-dot").forEach(d=>d.classList.remove("active"));
+  el.classList.add("active");renderCharts();
+}
+function applyThemeOnLoad(){
+  const cls=data.theme||"";
+  document.body.classList.remove(...ALL_T);
+  if(cls)document.body.classList.add(cls);
+  document.querySelectorAll(".theme-dot").forEach(d=>{
+    d.classList.remove("active");
+    if(d.dataset.theme===cls)d.classList.add("active");
+  });
+}
+
+// ====== TABS ======
+function switchTab(name,btn){
+  document.querySelectorAll(".tab-content").forEach(t=>t.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+  document.getElementById("tab-"+name).classList.add("active");btn.classList.add("active");
+  if(name==="analytics")renderCharts();
+  if(name==="profile")renderProfile();
+  if(name==="reading")renderBook();
+  if(name==="training")renderRaidHistory();
+}
+
+// ====== UI ======
+function updateUI(){
+  document.getElementById("hLevel").textContent=data.level;
+  document.getElementById("hRank").textContent=data.rank;
+  const rankEl=document.getElementById("hRank").parentElement;
+  rankEl.classList.toggle("national", data.rank==="NATIONAL");
+  document.getElementById("hXP").textContent=data.xp;
+  document.getElementById("hXPBar").style.width=Math.min(data.xp,100)+"%";
+  renderQuests();renderBook();renderRaidHistory();renderProfile();
+}
+
+// ====== RESET ======
+function resetAllData(){
+  if(!confirm("Ты уверен? Весь прогресс будет удалён безвозвратно."))return;
+  localStorage.removeItem("soloTraining");SFX.err();location.reload();
+}
+
+// ====== INIT ======
+applyThemeOnLoad();
+updateRank();
+resetDaily();
+updateUI();
+renderCharts();
+if(!data.seenEvents)data.seenEvents=[];
+[10,20,50,100].forEach(lvl=>{if(data.level>=lvl&&!data.seenEvents.includes(lvl))showEvent(lvl);});
+
+// ====== PWA: SERVICE WORKER ======
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').then(reg=>{
+    // Планируем полуночное уведомление через SW
+    if(navigator.serviceWorker.controller){
+      navigator.serviceWorker.controller.postMessage({type:'SCHEDULE_MIDNIGHT'});
+    } else {
+      navigator.serviceWorker.addEventListener('controllerchange',()=>{
+        navigator.serviceWorker.controller.postMessage({type:'SCHEDULE_MIDNIGHT'});
+      });
+    }
+  }).catch(()=>{});
+}
+
+// ====== PWA: NOTIFICATIONS ======
+function requestNotificationPermission(){
+  if('Notification' in window && Notification.permission==='default'){
+    Notification.requestPermission();
+  }
+}
+requestNotificationPermission();
+
+function sendNotification(title, body){
+  if('Notification' in window && Notification.permission==='granted'){
+    navigator.serviceWorker.ready.then(sw=>{
+      sw.showNotification(title,{
+        body,
+        icon:'https://i.ibb.co/0ywCVD9d/f8068834-5e59-4d9e-b419-0aca5f978191.png',
+        badge:'https://i.ibb.co/0ywCVD9d/f8068834-5e59-4d9e-b419-0aca5f978191.png',
+        vibrate:[200,100,200],
+        tag:'solo-training'
+      });
+    }).catch(()=>{
+      new Notification(title,{body,icon:'https://i.ibb.co/0ywCVD9d/f8068834-5e59-4d9e-b419-0aca5f978191.png'});
+    });
+  }
+}
+
+// ====== MIDNIGHT RESET WATCHER ======
+// Check every minute if we crossed midnight — if so, reset daily quests
+// and send penalty notification if any were unfinished
+function startMidnightWatcher(){
+  setInterval(()=>{
+    const today=new Date().toDateString();
+    if(data.lastReset && data.lastReset!==today){
+      // Count unfinished quests before reset
+      const unfinished=data.quests.filter((q,i)=>!q&&!data.questsFailed[i]).length;
+      const failed=data.questsFailed.filter(Boolean).length;
+      const totalMissed=unfinished+failed;
+
+      // Trigger penalty if any quests were not completed
+      if(totalMissed>0 && !data.penalty){
+        const pt=PENALTIES[Math.floor(Math.random()*PENALTIES.length)];
+        data.penalty={task:pt.task,desc:pt.desc,date:new Date().toLocaleDateString("ru")};
+        save();
+        // Send push notification
+        sendNotification(
+          '⚠ ШТРАФНОЕ ЗАДАНИЕ',
+          'Вчера пропущено заданий: '+totalMissed+'. Штраф: '+pt.task
+        );
+      }
+
+      // Reset daily quests
+      data.quests=Array(TQ).fill(false);
+      data.questsFailed=Array(TQ).fill(false);
+      // Check streak
+      const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+      if(data.lastReset!==yesterday.toDateString())data.streak=0;
+      data.lastReset=today;
+      save();
+      updateUI();
+
+      // Show penalty modal if it was just assigned
+      if(data.penalty){
+        setTimeout(()=>{
+          document.getElementById("penaltyTaskName").textContent=data.penalty.task;
+          document.getElementById("penaltyTaskDesc").textContent=data.penalty.desc;
+          document.getElementById("penaltyOverlay").classList.add("show");
+          SFX.penalty();
+        },500);
+      }
+    }
+  }, 30000); // check every 30 seconds
+}
+startMidnightWatcher();
+
+// Show pending penalty on app open if it exists
+window.addEventListener('load',()=>{
+  if(data.penalty){
+    setTimeout(()=>{
+      renderPenaltyStatus();
+    },600);
+  }
+});
+</script>
+</body>
+</html>

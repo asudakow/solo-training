@@ -1,0 +1,25 @@
+{
+  "name": "Solo Training System",
+  "short_name": "Solo Training",
+  "description": "Геймифицированная система тренировок и саморазвития",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#07091a",
+  "theme_color": "#07091a",
+  "orientation": "portrait",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "https://i.ibb.co/0ywCVD9d/f8068834-5e59-4d9e-b419-0aca5f978191.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://i.ibb.co/0ywCVD9d/f8068834-5e59-4d9e-b419-0aca5f978191.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
